@@ -1,4 +1,5 @@
 #import <React/RCTRootView.h>
+#import <MobileCoreServices/MobileCoreServices.h>
 
 #if __has_include(<React/RCTUtilsUIOverride.h>)
     #import <React/RCTUtilsUIOverride.h>
@@ -77,41 +78,31 @@ RCT_REMAP_METHOD(data, resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPro
                 NSString *string;
                 NSString *type;
 
-                NSString *className = NSStringFromClass([(NSObject *) item class]);
+                // is an URL - Can be a path or Web URL
+                if ([(NSObject *)item isKindOfClass:[NSURL class]]) {
+                    NSURL *url = (NSURL *) item;
+                    string = [url absoluteString];
+                    type = ([[string pathExtension] isEqualToString:@""]) || [url.scheme containsString:@"http"] ? @"text" : @"media";
 
-                NSArray *items = @[@"NSURL", @"NSString", @"UIImage"];
-                NSUInteger class = [items indexOfObject:className];
-                switch (class) {
-                    case 0: {
-                        NSURL *url = (NSURL *) item;
-                        string = [url absoluteString];
-                        type = ([[string pathExtension] isEqualToString:@""]) || [url.scheme containsString:@"http"] ? @"text" : @"media";
+                    [data addObject:@{ @"value": string, @"type": type }];
+                
+                // is a String
+                } else if ([(NSObject *)item isKindOfClass:[NSString class]]) {
+                    string = (NSString *)item;
+                    type = @"text";
 
-                        break;
-                    }
+                    [data addObject:@{ @"value": string, @"type": type }];
 
-                    case 1: {
-                        string = (NSString *)item;
-                        type = @"text";
+                // is an Image
+                } else if ([(NSObject *)item isKindOfClass:[UIImage class]]) {
+                    UIImage *sharedImage = (UIImage *)item;
+                    NSString *path = [NSTemporaryDirectory() stringByAppendingPathComponent:@"image.png"];
+                    [UIImagePNGRepresentation(sharedImage) writeToFile:path atomically:YES];
+                    string = [NSString stringWithFormat:@"%@%@", @"file://", path];
+                    type = @"media";
 
-                        break;
-                    }
-
-                    case 2: {
-                        UIImage *sharedImage = (UIImage *)item;
-                        NSString *path = [NSTemporaryDirectory() stringByAppendingPathComponent:@"image.png"];
-                        [UIImagePNGRepresentation(sharedImage) writeToFile:path atomically:YES];
-                        string = [NSString stringWithFormat:@"%@%@", @"file://", path];
-                        type = @"media";
-
-                        break;
-                    }
+                    [data addObject:@{ @"value": string, @"type": type }];
                 }
-
-                [data addObject:@{
-                    @"value": string,
-                    @"type": type
-                }];
 
                 if (index == [attachments count]) {
                     callback(data, nil);
