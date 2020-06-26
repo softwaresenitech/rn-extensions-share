@@ -3,44 +3,29 @@ package chat.rocket;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.Promise;
-import com.facebook.react.bridge.ReadableMap;
-import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.WritableMap;
+import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.Arguments;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 
-import android.graphics.Bitmap;
-import java.io.InputStream;
-
 import java.io.File;
 import java.util.ArrayList;
 
-import javax.annotation.Nullable;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.json.JSONException;
-
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-
-
 public class ShareModule extends ReactContextBaseJavaModule {
-
   private File tempFolder;
+	public static final String CACHE_DIR = "rcShare";
 
   public ShareModule(ReactApplicationContext reactContext) {
-      super(reactContext);
+		super(reactContext);
   }
 
   @Override
   public String getName() {
-      return "ReactNativeShareExtension";
+		return "ReactNativeShareExtension";
   }
 
   @ReactMethod
@@ -50,48 +35,75 @@ public class ShareModule extends ReactContextBaseJavaModule {
 
   @ReactMethod
   public void data(Promise promise) {
-      promise.resolve(processIntent());
+		promise.resolve(processIntent());
   }
 
-  public WritableMap processIntent() {
-        WritableMap map = Arguments.createMap();
+  public WritableArray processIntent() {
+		WritableMap map = Arguments.createMap();
+		WritableArray items = Arguments.createArray();
 
-        String text = "";
-        String type = "";
-        String action = "";
+		String text = "";
+		String type = "";
+		String action = "";
 
-        Activity currentActivity = getCurrentActivity();
+		Activity currentActivity = getCurrentActivity();
 
-        if (currentActivity != null) {
-            this.tempFolder = new File(currentActivity.getCacheDir(), "rcShare");
-            Intent intent = currentActivity.getIntent();
-            action = intent.getAction();
-            type = intent.getType();
-            if (type == null) {
-                type = "";
-            }
+		if (currentActivity != null) {
+				tempFolder = new File(currentActivity.getCacheDir(), CACHE_DIR);
 
-            if (Intent.ACTION_SEND.equals(action) && "text/plain".equals(type)) {
-                text = intent.getStringExtra(Intent.EXTRA_TEXT);
-                map.putString("value", text);
-                map.putString("type", type);
-            } else if (Intent.ACTION_SEND.equals(action)) {
-                Uri uri = (Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM);
-                if (uri != null) {
-                    text = "file://" + RealPathUtil.getRealPathFromURI(currentActivity, uri);
-                    map.putString("value", text);
+				Intent intent = currentActivity.getIntent();
+				action = intent.getAction();
+				type = intent.getType();
 
-                    if (type.equals("image/*")) {
-                        type = "image/jpeg";
-                    } else if (type.equals("video/*")) {
-                        type = "video/mp4";
-                    }
+				// Received some text
+				if (Intent.ACTION_SEND.equals(action) && "text/plain".equals(type)) {
+					text = intent.getStringExtra(Intent.EXTRA_TEXT);
 
-                    map.putString("type", "media");
-                }
-            }
-        }
+					map.putString("value", text);
+					map.putString("type", "text");
 
-        return map;
-    }
+					items.pushMap(map);
+				
+				// Received a single file
+				} else if (Intent.ACTION_SEND.equals(action)) {
+					Uri uri = (Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM);
+
+					if (uri != null) {
+						try {
+							text = "file://" + RealPathUtil.getRealPathFromURI(currentActivity, uri);
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+
+						map.putString("value", text);
+						map.putString("type", "media");
+
+						items.pushMap(map);
+					}
+
+				// Received multiple files
+				} else if (Intent.ACTION_SEND_MULTIPLE.equals(action)) {
+					ArrayList<Uri> uris = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
+
+					for (Uri uri : uris) {
+						String filePath = "";
+						try {
+							filePath = RealPathUtil.getRealPathFromURI(currentActivity, uri);
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+
+						map = Arguments.createMap();
+						text = "file://" + filePath;
+
+						map.putString("value", text);
+						map.putString("type", "media");
+
+						items.pushMap(map);
+					}
+				}
+		}
+
+		return items;
+	}
 }
