@@ -10,6 +10,7 @@ import android.os.Build;
 import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -18,12 +19,10 @@ import java.io.InputStream;
 
 class RealPathUtil {
     @TargetApi(Build.VERSION_CODES.KITKAT)
-    static String getRealPathFromURI(final Context context, final Uri uri) throws IOException {
-
-        final boolean isKitKat = Build.VERSION.SDK_INT == Build.VERSION_CODES.KITKAT;
+    static String getRealPathFromURI(@NonNull final Context context, @NonNull final Uri uri) throws IOException {
 
         // DocumentProvider
-        if (isKitKat && DocumentsContract.isDocumentUri(context, uri)) {
+        if (DocumentsContract.isDocumentUri(context, uri)) {
             // ExternalStorageProvider
             if (isExternalStorageDocument(uri)) {
                 final String docId = DocumentsContract.getDocumentId(uri);
