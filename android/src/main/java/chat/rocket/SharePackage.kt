@@ -11,7 +11,7 @@ class SharePackage : ReactPackage {
 
     override fun createNativeModules(reactContext: ReactApplicationContext) = listOf<NativeModule>(ShareModule(reactContext))
 
-    override fun createJSModules() = emptyList<Class<out JavaScriptModule?>>()
+    override fun createJSModules() = emptyList<Class<out JavaScriptModule>>()
 
     override fun createViewManagers(reactContext: ReactApplicationContext) = emptyList<ViewManager<*, *>>()
 }
