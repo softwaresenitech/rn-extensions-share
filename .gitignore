@@ -3,6 +3,8 @@
 .tags
 .tags1
 
+node_modules/
+
 /android/.gradle/
 /android/.idea/
 /android/build/

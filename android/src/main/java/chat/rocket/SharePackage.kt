@@ -8,9 +8,6 @@ import com.facebook.react.uimanager.ViewManager
 import java.util.*
 
 class SharePackage : ReactPackage {
-    override fun createJSModules(): MutableList<Class<out JavaScriptModule>> {
-        return mutableListOf()
-    }
 
     override fun createNativeModules(reactContext: ReactApplicationContext) = listOf<NativeModule>(ShareModule(reactContext))
 
