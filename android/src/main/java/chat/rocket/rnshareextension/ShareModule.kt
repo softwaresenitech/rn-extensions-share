@@ -1,4 +1,4 @@
-package chat.rocket
+package chat.rocket.rnshareextension
 
 import android.app.Activity
 import android.content.Context
@@ -9,13 +9,8 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Parcelable
-import android.provider.MediaStore
-import android.util.Log
 import com.facebook.react.bridge.*
 import java.io.File
-import java.io.FileNotFoundException
-import java.util.*
-
 
 class ShareModule(reactContext: ReactApplicationContext?) : ReactContextBaseJavaModule(reactContext) {
 
