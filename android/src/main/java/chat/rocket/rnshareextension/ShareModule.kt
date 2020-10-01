@@ -1,6 +1,7 @@
 package chat.rocket.rnshareextension
 
 import android.app.Activity
+import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
 import android.content.Intent.ACTION_SEND
@@ -9,6 +10,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Parcelable
+import androidx.core.content.ContentResolverCompat
 import com.facebook.react.bridge.*
 import java.io.File
 
@@ -29,10 +31,14 @@ class ShareModule(reactContext: ReactApplicationContext?) : ReactContextBaseJava
 
         val intent = activity.intent
 
+        intent.type
+
         val result = when {
             intent.action == ACTION_SEND && intent.isTypeOf("text/plain") -> actionSendText(intent)
             intent.action == ACTION_SEND && intent.isTypeOf("image/") -> actionSendImage(intent, currentActivity)
             intent.action == ACTION_SEND_MULTIPLE && intent.isTypeOf("image/") -> actionSendMultiple(intent, currentActivity)
+            intent.action == ACTION_SEND -> actionSendOther(intent)
+            intent.action == ACTION_SEND_MULTIPLE -> actionSendMultipleOther(intent, currentActivity)
             else -> emptyList()
         }
 
@@ -42,6 +48,36 @@ class ShareModule(reactContext: ReactApplicationContext?) : ReactContextBaseJava
 
         return items
     }
+
+    private fun actionSendMultipleOther(intent: Intent, activity: Activity): List<WritableMap> {
+
+        val uris = intent.getParcelableArrayListExtra<Uri>(Intent.EXTRA_STREAM) as? List<Uri>
+                ?: emptyList()
+
+        return uris.map { blah(activity, it, intent) }.flatten()
+    }
+
+    private fun blah(activity: Activity, it: Uri, intent: Intent): List<WritableMap> {
+
+        val type = activity.contentResolver.getType(it)
+
+        return when {
+            type == null -> emptyList()
+            intent.action == ACTION_SEND && type.isTypeOf("image/") -> actionSendImage(intent, activity)
+            intent.action == ACTION_SEND -> actionSendOther(intent)
+            else -> emptyList()
+        }
+    }
+
+    private fun actionSendOther(intent: Intent): List<WritableMap> {
+
+        val uri = intent.getParcelableExtra<Parcelable>(Intent.EXTRA_STREAM) as? Uri
+                ?: return emptyList()
+
+        return listOf(uri.toString().createMap("other"))
+    }
+
+
 
     private fun actionSendMultiple(intent: Intent, activity: Activity): List<WritableMap> {
 
@@ -107,4 +143,8 @@ private fun String.createMap(type: String): WritableMap {
 
 private fun Intent.isTypeOf(typePrefix: String): Boolean {
     return type?.startsWith(typePrefix) == true
+}
+
+private fun String.isTypeOf(typePrefix: String): Boolean {
+    return this.startsWith(typePrefix)
 }
