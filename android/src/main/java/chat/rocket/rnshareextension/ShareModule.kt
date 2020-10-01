@@ -10,6 +10,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Parcelable
+import android.util.Log
 import androidx.core.content.ContentResolverCompat
 import com.facebook.react.bridge.*
 import java.io.File
@@ -31,14 +32,14 @@ class ShareModule(reactContext: ReactApplicationContext?) : ReactContextBaseJava
 
         val intent = activity.intent
 
-        intent.type
+        Log.e("GRAHAM", intent.type)
 
         val result = when {
-            intent.action == ACTION_SEND && intent.isTypeOf("text/plain") -> actionSendText(intent)
-            intent.action == ACTION_SEND && intent.isTypeOf("image/") -> actionSendImage(intent, currentActivity)
-            intent.action == ACTION_SEND_MULTIPLE && intent.isTypeOf("image/") -> actionSendMultiple(intent, currentActivity)
-            intent.action == ACTION_SEND -> actionSendOther(intent)
-            intent.action == ACTION_SEND_MULTIPLE -> actionSendMultipleOther(intent, currentActivity)
+            intent.action == ACTION_SEND && intent.isTypeOf("text/plain") -> actionSendText(intent).also { Log.e("GRAHAM", "plain") }
+            intent.action == ACTION_SEND && intent.isTypeOf("image/") -> actionSendImage(intent, currentActivity).also { Log.e("GRAHAM", "single image") }
+            intent.action == ACTION_SEND_MULTIPLE && intent.isTypeOf("image/") -> actionSendMultiple(intent, currentActivity).also { Log.e("GRAHAM", "multiple image") }
+            intent.action == ACTION_SEND -> actionSendOther(intent).also { Log.e("GRAHAM", "single other") }
+            intent.action == ACTION_SEND_MULTIPLE -> actionSendMultipleOther(intent, currentActivity).also { Log.e("GRAHAM", "multiple other") }
             else -> emptyList()
         }
 
@@ -76,8 +77,6 @@ class ShareModule(reactContext: ReactApplicationContext?) : ReactContextBaseJava
 
         return listOf(uri.toString().createMap("other"))
     }
-
-
 
     private fun actionSendMultiple(intent: Intent, activity: Activity): List<WritableMap> {
 
