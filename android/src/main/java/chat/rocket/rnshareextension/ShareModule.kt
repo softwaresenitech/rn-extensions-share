@@ -62,10 +62,12 @@ class ShareModule(reactContext: ReactApplicationContext?) : ReactContextBaseJava
 
         val type = activity.contentResolver.getType(it)
 
+        Log.e("GRAHAM", "The type of file is $type")
+
         return when {
             type == null -> emptyList()
-            intent.action == ACTION_SEND && type.isTypeOf("image/") -> actionSendImage(intent, activity)
-            intent.action == ACTION_SEND -> actionSendOther(intent)
+            intent.action == ACTION_SEND && type.isTypeOf("image/") -> actionSendImage(intent, activity).also { Log.e("GRAHAM", "The type of file is an image with multiple other files") }
+            intent.action == ACTION_SEND -> actionSendOther(intent).also { Log.e("GRAHAM", "The type of file is OTHER with multiple other files") }
             else -> emptyList()
         }
     }
@@ -98,7 +100,7 @@ class ShareModule(reactContext: ReactApplicationContext?) : ReactContextBaseJava
 
     private fun actionSendText(intent: Intent): List<WritableMap> {
 
-        return intent.getStringExtra(Intent.EXTRA_TEXT)?.let { listOf(it.createMap("text")) }
+        return intent.getStringExtra(Intent.EXTRA_TEXT)?.let { listOf(it.createMap("media")) }
                 ?: return emptyList()
     }
 
