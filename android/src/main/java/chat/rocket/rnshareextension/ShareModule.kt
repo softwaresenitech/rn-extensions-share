@@ -1,7 +1,6 @@
 package chat.rocket.rnshareextension
 
 import android.app.Activity
-import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
 import android.content.Intent.ACTION_SEND
@@ -11,7 +10,6 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Parcelable
 import android.util.Log
-import androidx.core.content.ContentResolverCompat
 import com.facebook.react.bridge.*
 import java.io.File
 
@@ -55,10 +53,10 @@ class ShareModule(reactContext: ReactApplicationContext?) : ReactContextBaseJava
         val uris = intent.getParcelableArrayListExtra<Uri>(Intent.EXTRA_STREAM) as? List<Uri>
                 ?: emptyList()
 
-        return uris.flatMap { uri -> blah(activity, uri, intent).also { Log.e("GRAHAM", "list has ${it.size} items") } }
+        return uris.flatMap { uri -> processOtherFile(activity, uri, intent).also { Log.e("GRAHAM", "list has ${it.size} items") } }
     }
 
-    private fun blah(activity: Activity, it: Uri, intent: Intent): List<WritableMap> {
+    private fun processOtherFile(activity: Activity, it: Uri, intent: Intent): List<WritableMap> {
 
         val type = activity.contentResolver.getType(it)
 
