@@ -66,9 +66,8 @@ class ShareModule(reactContext: ReactApplicationContext?) : ReactContextBaseJava
 
         return when {
             type == null -> emptyList()
-            intent.action == ACTION_SEND && type.isTypeOf("image/") -> actionSendImage(intent, activity).also { Log.e("GRAHAM", "The type of file is an image with multiple other files") }
-            intent.action == ACTION_SEND -> actionSendOther(intent).also { Log.e("GRAHAM", "The type of file is OTHER with multiple other files") }
-            else -> emptyList()
+            type.isTypeOf("image/") -> actionSendImage(intent, activity).also { Log.e("GRAHAM", "The type of file is an image with multiple other files") }
+            else -> actionSendOther(intent).also { Log.e("GRAHAM", "The type of file is OTHER with multiple other files") }
         }
     }
 
