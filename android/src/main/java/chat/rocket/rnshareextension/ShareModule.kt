@@ -55,7 +55,7 @@ class ShareModule(reactContext: ReactApplicationContext?) : ReactContextBaseJava
         val uris = intent.getParcelableArrayListExtra<Uri>(Intent.EXTRA_STREAM) as? List<Uri>
                 ?: emptyList()
 
-        return uris.map { blah(activity, it, intent) }.flatten()
+        return uris.flatMap { uri -> blah(activity, uri, intent).also { Log.e("GRAHAM", "list has ${it.size} items") } }
     }
 
     private fun blah(activity: Activity, it: Uri, intent: Intent): List<WritableMap> {
