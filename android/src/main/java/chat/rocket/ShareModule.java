@@ -85,7 +85,7 @@ public class ShareModule extends ReactContextBaseJavaModule {
 
 					map.putString("value", text);
 					map.putString("type", "media");
-					map.putString("valueContent", textContent)
+					map.putString("valueContent", textContent);
 
 					items.pushMap(map);
 				}
@@ -108,7 +108,7 @@ public class ShareModule extends ReactContextBaseJavaModule {
 					text = "file://" + filePath;
 					textContent = filePathContent;
 
-					map.putString("valueContent", textContent)
+					map.putString("valueContent", textContent);
 					map.putString("value", text);
 					map.putString("type", "media");
 
