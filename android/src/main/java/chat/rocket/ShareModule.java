@@ -116,10 +116,9 @@ public class ShareModule extends ReactContextBaseJavaModule {
 				}
 			}
 	}
-
-	return items;
+		return items;
 	}
-}
+
 
   public WritableArray processIntent() {
 		WritableMap map = Arguments.createMap();
