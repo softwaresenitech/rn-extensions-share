@@ -18,7 +18,7 @@ import java.io.InputStream;
 
 class RealPathUtil {
     @TargetApi(Build.VERSION_CODES.KITKAT)
-    static String getRealPathFromURI(final Context context, final Uri uri) throws IOException {
+    static String getRealPathFromURI(final Context context, final Uri uri, final Boolean preferContent) throws IOException {
 
         final boolean isKitKat = Build.VERSION.SDK_INT == Build.VERSION_CODES.KITKAT;
 
@@ -82,8 +82,14 @@ class RealPathUtil {
         // MediaStore (and general)
         else if ("content".equalsIgnoreCase(uri.getScheme())) {
             // Return the remote address
-            if (isGooglePhotosUri(uri))
+            if (isGooglePhotosUri(uri)) {
                 return uri.getLastPathSegment();
+            }
+
+            
+            if(preferContent){
+                return uri.toString();
+            }
             return getDataColumn(context, uri, null, null);
         }
         // File
