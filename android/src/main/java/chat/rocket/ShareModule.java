@@ -48,8 +48,10 @@ public class ShareModule extends ReactContextBaseJavaModule {
 	WritableArray items = Arguments.createArray();
 
 	String text = "";
+	String textContent = "";
 	String type = "";
 	String action = "";
+
 
 	Activity currentActivity = getCurrentActivity();
 
@@ -75,13 +77,15 @@ public class ShareModule extends ReactContextBaseJavaModule {
 
 				if (uri != null) {
 					try {
-						text = "file://" + RealPathUtil.getRealPathFromURI(currentActivity, uri, true);
+						text = "file://" + RealPathUtil.getRealPathFromURI(currentActivity, uri, false);
+						textContent = RealPathUtil.getRealPathFromURI(currentActivity, uri, true);
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
 
 					map.putString("value", text);
 					map.putString("type", "media");
+					map.putString("valueContent", textContent)
 
 					items.pushMap(map);
 				}
@@ -92,15 +96,19 @@ public class ShareModule extends ReactContextBaseJavaModule {
 
 				for (Uri uri : uris) {
 					String filePath = "";
+					String filePathContent = "";
 					try {
-						filePath = RealPathUtil.getRealPathFromURI(currentActivity, uri, true);
+						filePath = RealPathUtil.getRealPathFromURI(currentActivity, uri, false);
+						filePathContent = RealPathUtil.getRealPathFromURI(currentActivity, uri, true);
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
 
 					map = Arguments.createMap();
 					text = "file://" + filePath;
+					textContent = filePathContent;
 
+					map.putString("valueContent", textContent)
 					map.putString("value", text);
 					map.putString("type", "media");
 
