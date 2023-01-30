@@ -6,6 +6,7 @@
 #endif
 
 #import "ReactNativeShareExtension.h"
+#import <Contacts/Contacts.h>
 
 NSExtensionContext* extensionContext;
 
@@ -106,6 +107,28 @@ RCT_REMAP_METHOD(data, resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPro
                     type = @"media";
 
                     [data addObject:@{ @"value": string, @"type": type }];
+                        
+                // is an Contact
+                } else if ([itemProvider hasItemConformingToTypeIdentifier:(NSString *)kUTTypeVCard]) {
+                    [itemProvider loadItemForTypeIdentifier:(NSString *)kUTTypeVCard options:nil completionHandler:^(NSData *vCardData, NSError *error) {
+                        if (error) {
+                            // Handle the error
+                            return;
+                        }
+                        // Parse the vCard data
+                        NSError *parseError;
+                        NSData *vCardSerialization = [CNContactVCardSerialization dataWithContacts:vCardData error:&parseError];
+                        if(parseError){
+                            // Handle the error
+                            return;
+                        }
+                        // Convert contact to string
+                        CNContactFormatter *formatter = [[CNContactFormatter alloc] init];
+                        string = [formatter stringFromContact:vCardSerialization];
+                        type = @"vcard";
+                        
+                        [data addObject:@{ @"value": string, @"type": type }];
+                    }];
                 }
 
                 if (index == [attachments count]) {
