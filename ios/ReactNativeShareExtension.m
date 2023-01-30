@@ -80,8 +80,9 @@ RCT_REMAP_METHOD(data, resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPro
             {
                 index += 1;
 
-                NSString *string;
-                NSString *type;
+                __block NSString *string;
+                __block NSString *type;
+                NSItemProvider *itemProvider = (NSItemProvider *)item;
 
                 // is an URL - Can be a path or Web URL
                 if ([(NSObject *)item isKindOfClass:[NSURL class]]) {
